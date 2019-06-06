@@ -1,6 +1,5 @@
-mport * as React from "react";
+import * as React from "react";
 import { StyleSheet, TextInput, TextInputProps } from "react-native";
-import colors from "../config/colors";
 
 type Props = TextInputProps;
 
@@ -9,7 +8,7 @@ class FormTextInput extends React.Component<Props> {
     const { style, ...otherProps } = this.props;
     return (
       <TextInput
-        selectionColor={colors.DODGER_BLUE}
+        selectionColor={'#3e2465'}
         style={[styles.textInput, style]}
         {...otherProps}
       />
@@ -20,7 +19,7 @@ class FormTextInput extends React.Component<Props> {
 const styles = StyleSheet.create({
   textInput: {
     height: 40,
-    borderColor: colors.SILVER,
+    borderColor: 'gray',
     borderBottomWidth: StyleSheet.hairlineWidth,
     marginBottom: 20
   }

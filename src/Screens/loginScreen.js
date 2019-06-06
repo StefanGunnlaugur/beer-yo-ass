@@ -1,16 +1,18 @@
 import * as React from "react";
-import {TouchableOpacity, Image, StyleSheet, Text, View} from 'react-native';
+import { Dimensions, TouchableOpacity, Image, StyleSheet, Text, View} from 'react-native';
 import imageLogo from "../images/roundlogo.png";
 import Button from "../Components/Button";
 import FormTextInput from "../Components/FormTextInput";
 
+var width = Dimensions.get('window').width;
 interface State {
   email: string;
   password: string;
 }
 
 class LoginScreen extends React.Component<{}, State> {
-  readonly state: State = {
+  
+  state: State = {
     email: "",
     password: ""
   };
@@ -24,6 +26,7 @@ class LoginScreen extends React.Component<{}, State> {
   };
 
   handleLoginPress = () => {
+    alert("Nei félagi minn!")
     console.log("Login button pressed");
   };
 
@@ -35,14 +38,14 @@ class LoginScreen extends React.Component<{}, State> {
           <FormTextInput
             value={this.state.email}
             onChangeText={this.handleEmailChange}
-            placeholder={"test"}
+            placeholder={"Username"}
           />
           <FormTextInput
             value={this.state.password}
             onChangeText={this.handlePasswordChange}
-            placeholder={"Test"}
+            placeholder={"Password"}
           />
-          <Button label={"TESg"} onPress={this.handleLoginPress} />
+          <Button label={"Login"} onPress={this.handleLoginPress} />
         </View>
       </View>
     );
@@ -51,14 +54,15 @@ class LoginScreen extends React.Component<{}, State> {
 
 const styles = StyleSheet.create({
   container: {
+    width: width,
     flex: 1,
-    backgroundColor: "white",
     alignItems: "center",
     justifyContent: "space-between"
   },
   logo: {
     flex: 1,
-    width: "100%",
+    marginTop: 120,
+    width: "50%",
     resizeMode: "contain",
     alignSelf: "center"
   },

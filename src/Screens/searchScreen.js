@@ -8,7 +8,7 @@ export default class SearchScreen extends Component {
   }
 
   componentDidMount(){
-    return fetch('https://beer-yo-ass-server.herokuapp.com/beers')
+    return fetch('https://beer-yo-ass-backend.herokuapp.com/beers')
       .then((response) => response.json())
       .then((responseJson) => {
 
@@ -33,7 +33,7 @@ export default class SearchScreen extends Component {
 
     if(this.state.isLoading){
       return(
-        <View style={{flex: 1, paddingTop: 100}}>
+        <View style={{flex: 1, paddingTop: 150}}>
           <ActivityIndicator/>
         </View>
       )
@@ -57,16 +57,6 @@ export default class SearchScreen extends Component {
     );
   }
 }
-
-/*
-      <View style={{flex: 1, paddingTop:40, paddingLeft:20}}>
-        <FlatList
-          data={this.state.dataSource}
-          renderItem={({item}) => <Text>{item.name}, {item.beerId}</Text>}
-          keyExtractor={({beerId}, index) => beerId}
-        />
-      </View>
-*/
 
 const styles = StyleSheet.create({
   container: {
