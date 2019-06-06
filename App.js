@@ -1,33 +1,52 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
+import {createMaterialBottomTabNavigator} from 'react-navigation-material-bottom-tabs';
+import {createAppContainer} from 'react-navigation';
+import SearchScreen from './src/Components/searchScreen';
+import HomeScreen from './src/Components/homeScreen';
+import UserScreen from './src/Components/userScreen';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
+const navigation = createMaterialBottomTabNavigator({
+    Home: {
+    screen: HomeScreen,
+    navigationOptions:{
+      tabBarLabel: 'Home',
+      tabBarIcon:({tintColor}) =>(
+        <Icon name = "ios-beer" color={tintColor} size={24}/>
+      )
+    }
+  },
+  Search: { 
+    screen: SearchScreen,
+    navigationOptions:{
+      tabBarLabel: 'Search',
+      tabBarIcon:({tintColor}) =>(
+        <Icon name = "ios-search" color={tintColor} size={24}/>
+      )
+    }
+  },
+  User: { 
+    screen: UserScreen,
+    navigationOptions:{
+      tabBarLabel: 'Login',
+      tabBarIcon:({tintColor}) =>(
+        <Icon name = "ios-contact" color={tintColor} size={24}/>
+      )
+    }
+  },
+}, {
+  initialRouteName: 'Home',
+  inactiveColor: '#ffe6cc',
+  activeTintColor: '#3e2465',
+  barStyle: { backgroundColor: '#ff9933' },
+  shifting: true,
 });
 
-type Props = {};
-export default class App extends Component<Props> {
-  render() {
-    return (
-      <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
-      </View>
-    );
-  }
-}
+
+const App = createAppContainer(navigation);
+
+export default App;
 
 const styles = StyleSheet.create({
   container: {
