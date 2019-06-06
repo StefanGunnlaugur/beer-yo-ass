@@ -2,9 +2,9 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import {createMaterialBottomTabNavigator} from 'react-navigation-material-bottom-tabs';
 import {createAppContainer} from 'react-navigation';
-import SearchScreen from './src/Components/searchScreen';
-import HomeScreen from './src/Components/homeScreen';
-import UserScreen from './src/Components/userScreen';
+import SearchScreen from './src/Screens/searchScreen';
+import HomeScreen from './src/Screens/homeScreen';
+import UserScreen from './src/Screens/userScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const navigation = createMaterialBottomTabNavigator({

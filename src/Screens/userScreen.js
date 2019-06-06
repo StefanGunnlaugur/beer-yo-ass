@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
+//import LoginScreen from './loginScreen';
 
 export default class SearchScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>This is the search screen</Text>
+        <Text style={styles.welcome}>This is the user/login/signup screen</Text>
       </View>
     );
   }
