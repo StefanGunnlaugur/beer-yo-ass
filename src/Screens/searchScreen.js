@@ -1,24 +1,29 @@
 import React, {Component} from 'react';
-import {TouchableOpacity, ScrollView, FlatList, ActivityIndicator, StyleSheet, Text, View} from 'react-native';
+import {TouchableOpacity, ScrollView, FlatList, ActivityIndicator, StyleSheet, Text, View, Image} from 'react-native';
+import BeerItem from '../Components/BeerItem';
+
+
 
 export default class SearchScreen extends Component {
+
+  _keyExtractor = (item, index) => String(item.id);
+
   constructor(props){
     super(props);
     this.state ={ isLoading: true}
   }
 
   componentDidMount(){
-    return fetch('https://beer-yo-ass-backend.herokuapp.com/beers')
+    return fetch('http://127.0.0.1:3000/beers')
       .then((response) => response.json())
       .then((responseJson) => {
-
         this.setState({
           isLoading: false,
           dataSource: responseJson,
+          filterBeers: responseJson,
         }, function(){
-
+          //console.log(this.state.dataSource)
         });
-
       })
       .catch((error) =>{
         console.error(error);
@@ -29,8 +34,15 @@ export default class SearchScreen extends Component {
       alert(item.name)
    }
 
-  render(){
+   filterData = () => {
+      this.setState({ dataSource: this.state.dataSource.sort((a, b) => parseFloat(a.price) - parseFloat(b.price))});
+      console.log(this.state.dataSource);
+  }
 
+  render(){
+    const { navigation } = this.props;
+
+    data = this.filterData
     if(this.state.isLoading){
       return(
         <View style={{flex: 1, paddingTop: 150}}>
@@ -40,24 +52,56 @@ export default class SearchScreen extends Component {
     }
 
     return(
+      <View>
+        <TouchableOpacity
+          style = {styles.container}
+          onPress = {() => this.filterData()}>
+          <Text style = {styles.welcome}>
+            Press HERE
+          </Text>
+        </TouchableOpacity>
+        <FlatList
+          onEndReached={this.endReached}
+          onEndReachedThreshold={.7}
+          data={this.state.dataSource}
+          keyExtractor={this._keyExtractor}
+          renderItem={({item}) =>               
+          <BeerItem
+            key = {item.id}
+            item = {item}
+            navigation={navigation}
+        />}
+        />
+      </View>
+
+    );
+  }
+}
+/*
       <ScrollView>
         {
             this.state.dataSource.map((item, index) => (
+              <BeerItem
+                key = {item.id}
+                item = {item}
+              />
+            ))
+        }
+      </ScrollView>
+
               <TouchableOpacity
-                  key = {item.beerId}
+                  item = {item}
                   style = {styles.container}
                   onPress = {() => this.alertItemName(item)}>
                   <Text style = {styles.text}>
                     {item.name}
                   </Text>
+                  <Image
+                    style={{width: 50, height: 50}}
+                    source={{uri: "https://www.vinbudin.is/Portaldata/1/Resources/vorumyndir/medium/"+item.product_id+"_r.jpg"}}
+                   />
               </TouchableOpacity>
-            ))
-        }
-      </ScrollView>
-    );
-  }
-}
-
+*/
 const styles = StyleSheet.create({
   container: {
     padding: 10,
@@ -79,3 +123,51 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
+
+/*
+var sort_by = function(field, reverse, primer){
+
+   var key = primer ? 
+       function(x) {return primer(x[field])} : 
+       function(x) {return x[field]};
+
+   reverse = !reverse ? 1 : -1;
+
+   return function (a, b) {
+       return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+     } 
+}
+
+var homes = [{
+
+   "h_id": "3",
+   "city": "Dallas",
+   "state": "TX",
+   "zip": "75201",
+   "price": "162500"
+
+}, {
+
+   "h_id": "4",
+   "city": "Bevery Hills",
+   "state": "CA",
+   "zip": "90210",
+   "price": "319250"
+
+}, {
+
+   "h_id": "5",
+   "city": "New York",
+   "state": "NY",
+   "zip": "00010",
+   "price": "962500"
+
+}];
+
+// Sort by price high to low
+homes.sort(sort_by('price', true, parseInt));
+
+// Sort by city, case-insensitive, A-Z
+homes.sort(sort_by('city', false, function(a){return a.toUpperCase()}));
+*/

@@ -1,11 +1,22 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Text, View} from 'react-native';
 import {createMaterialBottomTabNavigator} from 'react-navigation-material-bottom-tabs';
 import {createAppContainer} from 'react-navigation';
+import { createStackNavigator } from 'react-navigation';
 import SearchScreen from './src/Screens/searchScreen';
 import HomeScreen from './src/Screens/homeScreen';
 import UserScreen from './src/Screens/userScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
+import BeerScreen from './src/Screens/beerScreen';
+
+const SearchScreenNavigator = createStackNavigator({
+  Search: SearchScreen,
+  Beer: BeerScreen,
+  },
+  {
+    initialRouteName: 'Search',
+  }
+);
 
 const navigation = createMaterialBottomTabNavigator({
     Home: {
@@ -18,7 +29,7 @@ const navigation = createMaterialBottomTabNavigator({
     }
   },
   Search: { 
-    screen: SearchScreen,
+    screen: SearchScreenNavigator,
     navigationOptions:{
       tabBarLabel: 'Search',
       tabBarIcon:({tintColor}) =>(
@@ -47,22 +58,3 @@ const navigation = createMaterialBottomTabNavigator({
 const App = createAppContainer(navigation);
 
 export default App;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
