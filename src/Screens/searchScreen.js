@@ -1,8 +1,10 @@
 import React, {Component} from 'react';
-import {TouchableOpacity, ScrollView, FlatList, ActivityIndicator, StyleSheet, Text, View, Image} from 'react-native';
+import {TouchableOpacity, ScrollView, FlatList, Platform, ActivityIndicator, StyleSheet, Text, View, Image} from 'react-native';
 import BeerItem from '../Components/BeerItem';
+import { SearchBar } from 'react-native-elements';
 
-
+const NAVBAR_HEIGHT = 64;
+const STATUS_BAR_HEIGHT = Platform.select({ ios: 20, android: 24 });
 
 export default class SearchScreen extends Component {
 
@@ -36,8 +38,38 @@ export default class SearchScreen extends Component {
 
    filterData = () => {
       this.setState({ dataSource: this.state.dataSource.sort((a, b) => parseFloat(a.price) - parseFloat(b.price))});
-      console.log(this.state.dataSource);
   }
+
+  searchFilterFunction = text => {    
+
+    this.setState({
+      value: text,
+    });
+
+    const newData = this.state.dataSource.filter(item => {      
+      const itemData = `${item.name.toUpperCase()}   
+      ${item.name.toUpperCase()} ${item.name.toUpperCase()}`;
+      
+       const textData = text.toUpperCase();
+        
+       return itemData.indexOf(textData) > -1;    
+    });
+    
+    this.setState({ filterBeers: newData });  
+  };
+
+  renderHeader = () => {
+    return (
+      <SearchBar
+        placeholder="Leita..."
+        lightTheme
+        round
+        onChangeText={text => this.searchFilterFunction(text)}
+        autoCorrect={false}
+        value={this.state.value}
+      />
+    );
+  };
 
   render(){
     const { navigation } = this.props;
@@ -53,17 +85,10 @@ export default class SearchScreen extends Component {
 
     return(
       <View>
-        <TouchableOpacity
-          style = {styles.container}
-          onPress = {() => this.filterData()}>
-          <Text style = {styles.welcome}>
-            Press HERE
-          </Text>
-        </TouchableOpacity>
         <FlatList
           onEndReached={this.endReached}
           onEndReachedThreshold={.7}
-          data={this.state.dataSource}
+          data={this.state.filterBeers}
           keyExtractor={this._keyExtractor}
           renderItem={({item}) =>               
           <BeerItem
@@ -72,12 +97,72 @@ export default class SearchScreen extends Component {
             navigation={navigation}
         />}
         />
+        <View style={styles.navbar}>
+          <Text style={styles.title}>
+            PLACES
+          </Text>
+        </View>
       </View>
-
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 10,
+    marginTop: 3,
+    backgroundColor: '#d9f9b1',
+    alignItems: 'center',
+  },
+  text: {
+    color: '#4f603c'
+  },
+  welcome: {
+    fontSize: 20,
+    textAlign: 'center',
+    margin: 10,
+  },
+  instructions: {
+    textAlign: 'center',
+    color: '#333333',
+    marginBottom: 5,
+  },
+  navbar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderBottomColor: '#dedede',
+    borderBottomWidth: 1,
+    height: NAVBAR_HEIGHT,
+    justifyContent: 'center',
+    paddingTop: STATUS_BAR_HEIGHT,
+  },
+  contentContainer: {
+    paddingTop: NAVBAR_HEIGHT,
+  },
+});
+
 /*
+        <SearchBar        
+          placeholder="Leit..."        
+          lightTheme        
+          round        
+          onChangeText={text => this.searchFilterFunction(text)}
+          autoCorrect={false}  
+          value={this.state.value}           
+        />    
+        <TouchableOpacity
+          style = {styles.container}
+          onPress = {() => this.filterData()}>
+          <Text style = {styles.welcome}>
+            Press HERE
+          </Text>
+        </TouchableOpacity>
+
+        
       <ScrollView>
         {
             this.state.dataSource.map((item, index) => (
@@ -102,29 +187,6 @@ export default class SearchScreen extends Component {
                    />
               </TouchableOpacity>
 */
-const styles = StyleSheet.create({
-  container: {
-    padding: 10,
-    marginTop: 3,
-    backgroundColor: '#d9f9b1',
-    alignItems: 'center',
-  },
-  text: {
-    color: '#4f603c'
-  },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-});
-
-
 /*
 var sort_by = function(field, reverse, primer){
 
