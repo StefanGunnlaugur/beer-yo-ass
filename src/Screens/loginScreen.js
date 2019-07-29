@@ -1,27 +1,27 @@
-import * as React from "react";
+import React, {Component} from 'react';
 import { Dimensions, TouchableOpacity, Image, StyleSheet, Text, View} from 'react-native';
 import imageLogo from "../images/roundlogo.png";
 import Button from "../Components/Button";
 import FormTextInput from "../Components/FormTextInput";
 
 var width = Dimensions.get('window').width;
-interface State {
-  email: string;
-  password: string;
-}
 
-class LoginScreen extends React.Component<{}, State> {
+
+export default class LoginScreen extends Component{
   
-  state: State = {
-    email: "",
-    password: ""
-  };
+  constructor(props){
+    super(props);
+    this.state ={
+      email: "",
+      password: ""
+    }
+  }
 
-  handleEmailChange = (email: string) => {
+  handleEmailChange = (email) => {
     this.setState({ email: email });
   };
 
-  handlePasswordChange = (password: string) => {
+  handlePasswordChange = (password) => {
     this.setState({ password: password });
   };
 
@@ -73,4 +73,3 @@ const styles = StyleSheet.create({
   }
 });
 
-export default LoginScreen;
