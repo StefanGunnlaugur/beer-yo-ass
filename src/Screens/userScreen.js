@@ -1,12 +1,33 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View, AsyncStorage} from 'react-native';
 import LoginScreen from './loginScreen';
+import UserPageScreen from './userPageScreen';
 
-export default class SearchScreen extends Component {
+
+let isLoggedIn;
+export default class UserScreen extends Component {
+
+  state ={ 
+    user: undefined,
+  }
+
+  async componentDidMount(){
+    isLoggedIn = JSON.parse(await AsyncStorage.getItem('user'));
+    
+    this.setState({ user: logger.user.username });
+  }
+
   render() {
+    isLoggedIn = JSON.parse(await AsyncStorage.getItem('user'));
+    this.setState({ user: logger.user.username });
+    console.log("SDFASDFASDF" + this.state.user)
     return (
-      <View style={styles.container}>
+      <View style={styles.container}>    
+        {!this.state.user ? (
         <LoginScreen/>
+      ) : (
+        <UserPageScreen/>
+      )}
       </View>
     );
   }

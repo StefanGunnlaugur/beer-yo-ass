@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View, AsyncStorage} from 'react-native';
 import { createStackNavigator } from 'react-navigation';
+
 
 
 const instructions = Platform.select({
@@ -11,11 +12,23 @@ const instructions = Platform.select({
 });
 
 export default class HomeScreen extends Component {
+
+  state ={ 
+    user: "",
+  }
+
+  async componentDidMount(){
+    const logger = JSON.parse(await AsyncStorage.getItem('user'));
+    this.setState({ user: logger.user.username });
+    console.log("AASDFASDFASDF " + logger)
+  }
+  
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.instructions}> {instructions} </Text>
         <Text style={styles.welcome}>This is the HOMEBOY screen</Text>
+        <Text style={styles.welcome}>{this.state.user}</Text>
       </View>
     );
   }

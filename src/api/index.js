@@ -1,7 +1,8 @@
 import { mapCart, mapOrder, mapCategory, mapProduct } from './mapping';
 import {AsyncStorage} from 'react-native';
 
-const baseurl = process.env.REACT_APP_API_URL;
+//const baseurl = process.env.REACT_APP_API_URL;
+const baseurl = 'http://127.0.0.1:3000';
 
 async function get(path){
   return request('GET', path);
@@ -21,7 +22,7 @@ async function deleteMethod(path){
 
 async function request(method, path, data = {}) {
   const url = new URL(path, baseurl);
-
+  console.log("xxxxxxx: " + url)
   const options = {
     method,
     headers: {},
