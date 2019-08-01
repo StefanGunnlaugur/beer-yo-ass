@@ -15,6 +15,11 @@ const AnimatedListView = Animated.createAnimatedComponent(FlatList);
 
 const dataSource = {};
 
+const baseurl = Platform.select({
+  ios: 'http://127.0.0.1:3000',
+  android: 'http://10.0.2.2:3000',
+});
+
 export default class SearchScreen extends Component {
   constructor(props) {
     super(props);
@@ -64,7 +69,7 @@ export default class SearchScreen extends Component {
   }
 
   getData = () => {
-    fetch('http://127.0.0.1:3000/beers')
+    fetch(baseurl+'/beers')
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({

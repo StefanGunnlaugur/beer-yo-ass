@@ -6,6 +6,11 @@ import { SearchBar } from 'react-native-elements';
 const NAVBAR_HEIGHT = 64;
 const STATUS_BAR_HEIGHT = Platform.select({ ios: 20, android: 24 });
 
+const baseurl = Platform.select({
+  ios: 'http://127.0.0.1:3000',
+  android: 'http://10.0.2.2:3000',
+});
+
 export default class SearchScreen extends Component {
 
   _keyExtractor = (item, index) => String(item.id);
@@ -16,7 +21,7 @@ export default class SearchScreen extends Component {
   }
 
   componentDidMount(){
-    return fetch('http://127.0.0.1:3000/beers')
+    return fetch(baseurl+'/beers')
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
@@ -73,6 +78,7 @@ export default class SearchScreen extends Component {
 
   render(){
     const { navigation } = this.props;
+    
 
     data = this.filterData
     if(this.state.isLoading){

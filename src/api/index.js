@@ -1,8 +1,13 @@
 import { mapCart, mapOrder, mapCategory, mapProduct } from './mapping';
-import {AsyncStorage} from 'react-native';
+import {AsyncStorage, Platform} from 'react-native';
 
 //const baseurl = process.env.REACT_APP_API_URL;
-const baseurl = 'http://127.0.0.1:3000';
+// const baseurl = 'http://127.0.0.1:3000';
+
+const baseurl = Platform.select({
+  ios: 'http://127.0.0.1:3000',
+  android: 'http://10.0.2.2:3000',
+});
 
 async function get(path){
   return request('GET', path);

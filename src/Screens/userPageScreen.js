@@ -21,6 +21,7 @@ export default class UserPageScreen extends Component {
 
   async componentDidMount(){
     const logger = JSON.parse(await AsyncStorage.getItem('user'));
+    
     this.setState({ user: logger.user.username });
   }
   
@@ -31,6 +32,9 @@ export default class UserPageScreen extends Component {
   logoutUser = async () => {
     AsyncStorage.removeItem('user');
     this.setState({ user: null});
+
+    this.props.updateUser(null);
+
   };
 
   render() {

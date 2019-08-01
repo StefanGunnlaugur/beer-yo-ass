@@ -6,6 +6,11 @@ import ProgressiveImage from '../Components/ProgressiveImage';
 
 let beerId;
 
+const baseurl = Platform.select({
+  ios: 'http://127.0.0.1:3000',
+  android: 'http://10.0.2.2:3000',
+});
+
 export default class BeerScreen extends Component {
     
     constructor(props){
@@ -22,7 +27,7 @@ export default class BeerScreen extends Component {
     componentDidMount(){
         const { navigation } = this.props;
         beerId = navigation.getParam('beerId', 'NO-ID');
-        const url = 'http://127.0.0.1:3000/beers/'+beerId;
+        const url = baseurl+'/beers/'+beerId;
         return fetch(url)
             .then((response) => response.json())
             .then((responseJson) => {

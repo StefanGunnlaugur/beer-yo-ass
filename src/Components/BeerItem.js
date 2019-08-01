@@ -99,7 +99,7 @@ export default class BeerItem extends Component {
           </View>
           <View style = {styles.secondRow}>
             <Text style = {styles.secondText}>
-              Alkóhól: {item.alcohol}%
+              Styrkur: {item.alcohol}%
             </Text>
             <Text style = {styles.secondText}>
               {item.price}kr.

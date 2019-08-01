@@ -45,18 +45,25 @@ export default class LoginScreen extends Component{
         const user = result.data;
         await AsyncStorage.setItem('user', JSON.stringify(user));
         this.setState({ user, fetching: false, authenticated: true });
+
+        this.props.updateUser(user);
+        
+        
       }
     } catch (e) {
       this.setState({ message: e.message });
     } finally {
       this.setState({ fetching: false });
     }
+    console.log(this.state);
   };
 
   render() {
     const errors = this.state.message;
     return (
       <View style={styles.container}>
+        <Text>LoginScreen</Text>
+
         <Image source={imageLogo} style={styles.logo} />
         <View style={styles.form}>
           <FormTextInput
@@ -69,6 +76,13 @@ export default class LoginScreen extends Component{
             onChangeText={this.handlePasswordChange}
             placeholder={"Password"}
           />
+
+          <Text style={styles.bottomText}>
+            <Text>{this.props.loginText}</Text>
+            <Text style={{fontWeight: "bold"}} onPress={this.props.updateLogin}>{this.props.clickText}</Text>
+            <Text>!</Text>
+          </Text>
+
           <Button label={"Login"} onPress={this.handleLoginPress} />
         </View>
       </View>
@@ -94,6 +108,10 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     width: "80%"
+  },
+  bottomText: {
+    alignSelf: "center",
+    marginBottom: 20,
   }
 });
 
