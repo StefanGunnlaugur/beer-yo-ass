@@ -1,10 +1,19 @@
-import React, {Component} from 'react';
-import {TouchableOpacity, ScrollView, FlatList, Platform, ActivityIndicator, StyleSheet, Text, View, Image} from 'react-native';
+import React, { Component } from 'react';
+import { TextInput, Animated, Image, Platform, StyleSheet,FlatList, View, Text, LayoutAnimation, UIManager, TouchableOpacity  } from 'react-native';
+import { SegmentedControls } from 'react-native-radio-buttons'
+
 import BeerItem from '../Components/BeerItem';
+import Filtermenu from '../Components/BeerItem';
 import { SearchBar } from 'react-native-elements';
 
-const NAVBAR_HEIGHT = 64;
-const STATUS_BAR_HEIGHT = Platform.select({ ios: 20, android: 24 });
+
+const NAVBAR_HEIGHT = 58;
+const STATUS_BAR_HEIGHT = Platform.select({ ios: 0, android: 24 });
+const EXPANDED_HEIGHT = 150;
+
+const AnimatedListView = Animated.createAnimatedComponent(FlatList);
+
+const dataSource = {};
 
 const baseurl = Platform.select({
   ios: 'http://127.0.0.1:3000',
@@ -12,21 +21,61 @@ const baseurl = Platform.select({
 });
 
 export default class SearchScreen extends Component {
-
-  _keyExtractor = (item, index) => String(item.id);
-
-  constructor(props){
+  constructor(props) {
     super(props);
-    this.state ={ isLoading: true}
+
+    const scrollAnim = new Animated.Value(0);
+    const offsetAnim = new Animated.Value(0);
+
+    this.state = {
+        orderby: '',
+        underPrice: '',
+        overPrice: '',
+        expanded: false,
+        dataSource: dataSource,
+        scrollAnim,
+        offsetAnim,
+        clampedScroll: Animated.diffClamp(
+            Animated.add(
+            scrollAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 1],
+                extrapolateLeft: 'clamp',
+            }),
+            offsetAnim,
+            ),
+            0,
+            NAVBAR_HEIGHT - STATUS_BAR_HEIGHT,
+        ),
+    };
+
+        if(Platform.OS === 'android') {
+            UIManager.setLayoutAnimationEnabledExperimental(true);
+          }
   }
 
-  componentDidMount(){
-    return fetch(baseurl+'/beers')
+  _clampedScrollValue = 0;
+  _offsetValue = 0;
+  _scrollValue = 0;
+
+  changeLayout = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    this.setState({ expanded: !this.state.expanded });
+  }
+
+  closeFilters = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    this.setState({ expanded: !this.state.expanded });
+  }
+
+  getData = () => {
+    fetch(baseurl+'/beers')
       .then((response) => response.json())
       .then((responseJson) => {
         this.setState({
           isLoading: false,
           dataSource: responseJson,
+          dataBeers: responseJson,
           filterBeers: responseJson,
         }, function(){
           //console.log(this.state.dataSource)
@@ -35,23 +84,69 @@ export default class SearchScreen extends Component {
       .catch((error) =>{
         console.error(error);
       });
+    };
+
+  async componentDidMount() {
+    await this.getData();
+    this.state.scrollAnim.addListener(({ value }) => {
+      const diff = value - this._scrollValue;
+      this._scrollValue = value;
+      this._clampedScrollValue = Math.min(
+        Math.max(this._clampedScrollValue + diff, 0),
+        NAVBAR_HEIGHT - STATUS_BAR_HEIGHT,
+      );
+    });
+    this.state.offsetAnim.addListener(({ value }) => {
+      this._offsetValue = value;
+    });
   }
 
-   alertItemName = (item) => {
-      alert(item.name)
-   }
-
-   filterData = () => {
-      this.setState({ dataSource: this.state.dataSource.sort((a, b) => parseFloat(a.price) - parseFloat(b.price))});
+  componentWillUnmount() {
+    this.state.scrollAnim.removeAllListeners();
+    this.state.offsetAnim.removeAllListeners();
   }
+
+  _onScrollEndDrag = () => {
+    this._scrollEndTimer = setTimeout(this._onMomentumScrollEnd, 250);
+  };
+
+  _onMomentumScrollBegin = () => {
+    if(this.state.expanded){
+      this.closeFilters();
+    }
+    clearTimeout(this._scrollEndTimer);
+  };
+
+  _onMomentumScrollEnd = () => {
+    const toValue = this._scrollValue > NAVBAR_HEIGHT &&
+      this._clampedScrollValue > (NAVBAR_HEIGHT - STATUS_BAR_HEIGHT) / 2
+      ? this._offsetValue + NAVBAR_HEIGHT
+      : this._offsetValue - NAVBAR_HEIGHT;
+
+    Animated.timing(this.state.offsetAnim, {
+      toValue,
+      duration: 350,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  _renderRow = (rowData, sectionId, rowId) => {
+    const { navigation } = this.props;
+    return (
+        <BeerItem
+            key = {rowData.id}
+            item = {rowData}
+            navigation={navigation}
+        />
+    );
+  };
 
   searchFilterFunction = text => {    
-
     this.setState({
       value: text,
     });
 
-    const newData = this.state.dataSource.filter(item => {      
+    const newData = this.state.dataBeers.filter(item => {      
       const itemData = `${item.name.toUpperCase()}   
       ${item.name.toUpperCase()} ${item.name.toUpperCase()}`;
       
@@ -60,182 +155,215 @@ export default class SearchScreen extends Component {
        return itemData.indexOf(textData) > -1;    
     });
     
-    this.setState({ filterBeers: newData });  
+    this.setState({ 
+        filterBeers: newData,
+        dataSource: newData,
+    });  
   };
 
-  renderHeader = () => {
-    return (
-      <SearchBar
-        placeholder="Leita..."
-        lightTheme
-        round
-        onChangeText={text => this.searchFilterFunction(text)}
-        autoCorrect={false}
-        value={this.state.value}
-      />
-    );
-  };
+  render() {
 
-  render(){
-    const { navigation } = this.props;
-    
+    var sort_by = function(field, reverse, primer){
 
-    data = this.filterData
-    if(this.state.isLoading){
-      return(
-        <View style={{flex: 1, paddingTop: 150}}>
-          <ActivityIndicator/>
-        </View>
-      )
+      var key = primer ? 
+          function(x) {return primer(x[field])} : 
+          function(x) {return x[field]};
+   
+      reverse = !reverse ? 1 : -1;
+   
+      return function (a, b) {
+          return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+        } 
+   }
+
+    function setSelectedOption(selectedOption){
+      let sorted = this.state.dataSource;
+      switch(selectedOption) {
+        case "Verð":
+          sorted.sort(sort_by('price', false, parseInt));
+            break;
+        case "Áfengismagn":
+          sorted.sort(sort_by('alcohol', true, parseFloat));
+            break;
+        case "Stafrófsröð":
+          sorted.sort(sort_by('name', false, function(a){return a.toUpperCase()}));          
+          break;
+        //case "Book":
+        //  sorted.sort(sort_by('name', false, function(a){return a.toUpperCase()}));          break;
+        default:
+          // code block
+      }
+      this.setState({
+        selectedOption,
+        dataSource:sorted
+      });
     }
 
-    return(
-      <View>
-        <FlatList
-          onEndReached={this.endReached}
-          onEndReachedThreshold={.7}
-          data={this.state.filterBeers}
-          keyExtractor={this._keyExtractor}
-          renderItem={({item}) =>               
-          <BeerItem
-            key = {item.id}
-            item = {item}
-            navigation={navigation}
-        />}
-        />
-        <View style={styles.navbar}>
-          <Text style={styles.title}>
-            PLACES
-          </Text>
+    const options = [
+      "Áfengismagn",
+      "Verð",
+      "Stafrófsröð"
+      //"Book"
+    ];
+
+    const { navigation } = this.props;
+
+    const { clampedScroll } = this.state;
+
+    const navbarTranslate = clampedScroll.interpolate({
+      inputRange: [0, NAVBAR_HEIGHT - STATUS_BAR_HEIGHT],
+      outputRange: [0, -(NAVBAR_HEIGHT - STATUS_BAR_HEIGHT)],
+      extrapolate: 'clamp',
+    });
+    const navbarOpacity = clampedScroll.interpolate({
+      inputRange: [0, NAVBAR_HEIGHT - STATUS_BAR_HEIGHT],
+      outputRange: [1, 0],
+      extrapolate: 'clamp',
+    });
+
+    return (
+        
+      <View style={styles.fill}>
+        <View style={{ paddingTop: this.state.expanded ? EXPANDED_HEIGHT : 0}}>
+            <AnimatedListView
+            onEndReached={this.endReached}
+            onEndReachedThreshold={.7}
+            data={this.state.filterBeers}
+            keyExtractor={this._keyExtractor}
+            renderItem={({item}) =>               
+              <BeerItem
+                key = {item.id}
+                item = {item}
+                navigation={navigation}
+              />
+            }
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={styles.contentContainer}
+            dataSource={this.state.dataSource}
+            renderRow={this._renderRow}
+            scrollEventThrottle={1}
+            onMomentumScrollBegin={this._onMomentumScrollBegin}
+            onMomentumScrollEnd={this._onMomentumScrollEnd}
+            onScrollEndDrag={this._onScrollEndDrag}
+            onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: this.state.scrollAnim } } }],
+                { useNativeDriver: true },
+            )}
+            />
         </View>
+        <Animated.View style={[styles.navbar, { transform: [{ translateY: navbarTranslate }] }]}>
+            <View style={styles.searchRow}>
+                <View style={styles.searchBarContainer}>
+                    <SearchBar        
+                        placeholder="Leit..."        
+                        darkTheme        
+                        round        
+                        onChangeText={text => this.searchFilterFunction(text)}
+                        autoCorrect={false}  
+                        value={this.state.value}
+                    /> 
+                </View>
+                <TouchableOpacity activeOpacity={0.8} onPress={this.changeLayout} style={styles.Btn}>
+                    <Image
+                        style={styles.image}
+                        source={{uri: 'https://reddingdesigns.com/images/icons/icon-expand-white.png'}}
+                    />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.container}>
+                <View style={{ height: this.state.expanded ? EXPANDED_HEIGHT : 0, overflow: 'hidden' }}>
+                  <View style={styles.expandedContainer}>
+                    <SegmentedControls
+                      tint={'#fff3e6'}
+                      selectedTint= {'#cc6900'}
+                      backTint= {'#ff9933'}
+                      options={ options }
+                      allowFontScaling={ true } // default: true
+                      onSelection={ setSelectedOption.bind(this) }
+                      selectedOption={ this.state.selectedOption }
+                      optionStyle={{fontFamily: 'AvenirNext-Medium'}}
+                      optionContainerStyle={{flex: 1}}
+                    />
+                    <TextInput
+                      style={styles.priceInput}
+                      onChangeText={(text) => this.setState({underPrice:text})}
+                      value={this.state.underPrice}
+                      placeholder = 'Verð undir'
+                    />
+                    <TextInput
+                      style={styles.priceInput}
+                      onChangeText={(text) => this.setState({overPrice:text})}
+                      value={this.state.overPrice}
+                      placeholder = 'Verð yfir'
+                    />
+                  </View>
+                </View>
+            </View>
+        </Animated.View>
       </View>
     );
   }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 10,
-    marginTop: 3,
-    backgroundColor: '#d9f9b1',
-    alignItems: 'center',
+  fill: {
+    flex: 1,
   },
-  text: {
-    color: '#4f603c'
+  priceInput:{
+    height: 40, 
+    width: 100,
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  expandedContainer:{
+    paddingTop: 10,
   },
   navbar: {
+    backgroundColor: '#393e42',
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    alignItems: 'center',
-    backgroundColor: 'white',
-    borderBottomColor: '#dedede',
-    borderBottomWidth: 1,
-    height: NAVBAR_HEIGHT,
     justifyContent: 'center',
-    paddingTop: STATUS_BAR_HEIGHT,
+  },
+  searchBarContainer: {
+    flex: 6, 
+  },
+  searchRow: {
+    flex: 1, 
+    flexDirection: 'row',
+  },
+  searchbar: {
+    width: 100,
   },
   contentContainer: {
     paddingTop: NAVBAR_HEIGHT,
   },
+  title: {
+    color: '#333333',
+  },
+  container: {
+    flex: 1,
+    paddingHorizontal: 10,
+    justifyContent: 'center',
+    backgroundColor: '#ffe6cc',
+  },
+ 
+  text: {
+    fontSize: 17,
+    color: 'black',
+  },
+ 
+  btnText: {
+    textAlign: 'center',
+    color: 'white',
+    fontSize: 20
+  },
+  image: {
+    height: '100%',
+    width: '100%',
+  },
+  Btn: {
+    flex:1,
+  }
 });
 
-/*
-        <SearchBar        
-          placeholder="Leit..."        
-          lightTheme        
-          round        
-          onChangeText={text => this.searchFilterFunction(text)}
-          autoCorrect={false}  
-          value={this.state.value}           
-        />    
-        <TouchableOpacity
-          style = {styles.container}
-          onPress = {() => this.filterData()}>
-          <Text style = {styles.welcome}>
-            Press HERE
-          </Text>
-        </TouchableOpacity>
-
-        
-      <ScrollView>
-        {
-            this.state.dataSource.map((item, index) => (
-              <BeerItem
-                key = {item.id}
-                item = {item}
-              />
-            ))
-        }
-      </ScrollView>
-
-              <TouchableOpacity
-                  item = {item}
-                  style = {styles.container}
-                  onPress = {() => this.alertItemName(item)}>
-                  <Text style = {styles.text}>
-                    {item.name}
-                  </Text>
-                  <Image
-                    style={{width: 50, height: 50}}
-                    source={{uri: "https://www.vinbudin.is/Portaldata/1/Resources/vorumyndir/medium/"+item.product_id+"_r.jpg"}}
-                   />
-              </TouchableOpacity>
-*/
-/*
-var sort_by = function(field, reverse, primer){
-
-   var key = primer ? 
-       function(x) {return primer(x[field])} : 
-       function(x) {return x[field]};
-
-   reverse = !reverse ? 1 : -1;
-
-   return function (a, b) {
-       return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
-     } 
-}
-
-var homes = [{
-
-   "h_id": "3",
-   "city": "Dallas",
-   "state": "TX",
-   "zip": "75201",
-   "price": "162500"
-
-}, {
-
-   "h_id": "4",
-   "city": "Bevery Hills",
-   "state": "CA",
-   "zip": "90210",
-   "price": "319250"
-
-}, {
-
-   "h_id": "5",
-   "city": "New York",
-   "state": "NY",
-   "zip": "00010",
-   "price": "962500"
-
-}];
-
-// Sort by price high to low
-homes.sort(sort_by('price', true, parseInt));
-
-// Sort by city, case-insensitive, A-Z
-homes.sort(sort_by('city', false, function(a){return a.toUpperCase()}));
-*/

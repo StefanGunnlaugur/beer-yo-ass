@@ -3,7 +3,7 @@ import {Text, View} from 'react-native';
 import {createMaterialBottomTabNavigator} from 'react-navigation-material-bottom-tabs';
 import {createAppContainer} from 'react-navigation';
 import { createStackNavigator } from 'react-navigation';
-import SearchScreen from './src/Screens/temp';
+import SearchScreen from './src/Screens/searchScreen';
 import HomeScreen from './src/Screens/homeScreen';
 import UserScreen from './src/Screens/userScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -17,6 +17,7 @@ const SearchScreenNavigator = createStackNavigator({
   },
   {
     initialRouteName: 'Search',
+    headerMode: 'none'
   }
 );
 
