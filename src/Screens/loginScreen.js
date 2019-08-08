@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Dimensions, TouchableOpacity, Image, StyleSheet, Text, AsyncStorage, View} from 'react-native';
+import { Dimensions, TouchableOpacity, Image, StyleSheet, Text, AsyncStorage, View, TextInput} from 'react-native';
 import imageLogo from "../images/roundlogo.png";
 import Button from "../Components/Button";
 import FormTextInput from "../Components/FormTextInput";
@@ -46,6 +46,10 @@ export default class LoginScreen extends Component{
         await AsyncStorage.setItem('user', JSON.stringify(user));
         this.setState({ user, fetching: false, authenticated: true });
 
+        console.log('user');
+        console.log(user);
+        
+
         this.props.updateUser(user);
         
         
@@ -58,24 +62,46 @@ export default class LoginScreen extends Component{
     console.log(this.state);
   };
 
+  handleErrors = () => {
+    const message = this.state.message;    
+    
+    if (typeof(message[0]) === 'object' || typeof(message.error) !== 'undefined') {
+      console.log('hingað');
+      
+      return(
+        <Text style={styles.errorText}>
+          Username or password is incorrect
+        </Text>
+      );
+    }
+  };
+
+  // onSubmitEditing={() => { this.Password.focus(); }}
+  // blurOnSubmit={false}
+
+  // ref={(input) => { this.Password = input; }}
+
   render() {
-    const errors = this.state.message;
+    console.log(this.state);
+    
     return (
       <View style={styles.container}>
-        <Text>LoginScreen</Text>
 
         <Image source={imageLogo} style={styles.logo} />
         <View style={styles.form}>
           <FormTextInput
             value={this.state.email}
             onChangeText={this.handleUsername}
-            placeholder={"Username"}
+            placeholder="Username"
           />
           <FormTextInput
             value={this.state.password}
             onChangeText={this.handlePasswordChange}
-            placeholder={"Password"}
+            placeholder="Password"
+            onSubmitEditing={this.handleLoginPress}
           />
+
+          { this.handleErrors() }
 
           <Text style={styles.bottomText}>
             <Text>{this.props.loginText}</Text>
@@ -84,6 +110,7 @@ export default class LoginScreen extends Component{
           </Text>
 
           <Button label={"Login"} onPress={this.handleLoginPress} />
+
         </View>
       </View>
     );
@@ -99,7 +126,7 @@ const styles = StyleSheet.create({
   },
   logo: {
     flex: 1,
-    marginTop: 120,
+    marginTop: 1,
     width: "50%",
     resizeMode: "contain",
     alignSelf: "center"
@@ -111,6 +138,11 @@ const styles = StyleSheet.create({
   },
   bottomText: {
     alignSelf: "center",
+    marginBottom: 20,
+  },
+  errorText: {
+    color: '#D8000C',
+    alignSelf: 'center',
     marginBottom: 20,
   }
 });

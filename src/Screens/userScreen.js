@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, AsyncStorage} from 'react-native';
+import {Platform, StyleSheet, Text, View, AsyncStorage, ScrollView} from 'react-native';
 import LoginScreen from './loginScreen';
 import UserPageScreen from './userPageScreen';
 import SignupScreen from './signupScreen';
+// import { ScrollView } from 'react-native-gesture-handler';
 
 
 let isLoggedIn;
@@ -23,8 +24,6 @@ export default class UserScreen extends Component {
   };
 
   updateLogin = () => {
-    console.log('in here baby');
-    
 
     if (this.state.login) {
       this.setState({ loginText: 'Already have an account? ', clickText: 'Log in'});
@@ -53,23 +52,24 @@ export default class UserScreen extends Component {
     console.log("SDFASDFASDF" + this.state.user)
     return (
       <View style={styles.container}>
+
         {!this.state.user ? (
           (this.state.login ? (
             <LoginScreen
-              updateUser={this.updateUser.bind(this)}
-              loginText={this.state.loginText}
+            updateUser={this.updateUser.bind(this)}
+            loginText={this.state.loginText}
               clickText={this.state.clickText}
               updateLogin={this.updateLogin.bind(this)}
               />
             ) : (
-            <SignupScreen
+              <SignupScreen
               loginText={this.state.loginText}
               clickText={this.state.clickText}
               updateLogin={this.updateLogin.bind(this)}
              />
-            ))
-        ) : (
-          <UserPageScreen updateUser={this.updateUser.bind(this)} />
+             ))
+             ) : (
+               <UserPageScreen updateUser={this.updateUser.bind(this)} />
         )}
 
       </View>
@@ -82,7 +82,6 @@ export default class UserScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
