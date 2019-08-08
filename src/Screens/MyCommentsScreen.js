@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 
 
 
-export default class MyCommentsScreen extends Component {
+export default class myCommentsScreen extends Component {
     
     render() {
         return (

@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 
 
 
-export default class SettingsScreen extends Component {
+export default class settingsScreen extends Component {
     
     render() {
         return (
