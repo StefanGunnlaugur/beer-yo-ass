@@ -1,10 +1,19 @@
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View, AsyncStorage} from 'react-native';
+import {Platform, StyleSheet, Text, View, AsyncStorage, FlatList} from 'react-native';
 import { createStackNavigator } from 'react-navigation';
 import Button from "../Components/Button";
+import UserPageItem from "../Components/UserPageItem";
 
 
+const listItems = [
+  {text: "Bjórarnir mínir"}, 
+  {text: "Bjórkvöld"}, 
+  {text: "Athugasemdirnar mínar"}, 
+  {text: "Stillingar"}, 
+  {text: "Leikur"}, 
+  {text: "Tölfræði"}
+]
 
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -46,6 +55,18 @@ export default class UserPageScreen extends Component {
         <Text style={styles.welcome}>UserScreen</Text>
         <Text style={styles.welcome}>{this.state.user}</Text>
         <Button label={"Logout"} onPress={this.handleLogoutPress} />
+        <FlatList
+          style={styles.userItems}
+          data={listItems}
+          renderItem={({item}) =>
+            <UserPageItem
+              key = {item.text}
+              text = {item.text}
+              navigation= {1}
+              image = {require('../images/roundlogo.png')}
+            />
+          }
+        />
       </View>
     );
   }
@@ -56,6 +77,7 @@ export default class UserPageScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
@@ -70,4 +92,8 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 5,
   },
+  userItems : {
+    flex:1,
+    width:"100%"
+  }
 });
