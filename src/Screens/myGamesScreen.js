@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 
 
 
-export default class myGamesScreen extends Component {
+export default class MyGamesScreen extends Component {
     
     render() {
         return (

@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 
 
 
-export default class myBeersScreen extends Component {
+export default class MyBeersScreen extends Component {
     
     render() {
         return (

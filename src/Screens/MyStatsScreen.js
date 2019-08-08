@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 
 
 
-export default class myStatsScreen extends Component {
+export default class MyStatsScreen extends Component {
     
     render() {
         return (
