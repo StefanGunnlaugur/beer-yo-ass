@@ -9,6 +9,9 @@ import UserScreen from './src/Screens/userScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import BeerScreen from './src/Screens/beerScreen';
 
+import SearchScreen from './src/Screens/searchScreen';
+
+
 console.disableYellowBox = true;
 
 const SearchScreenNavigator = createStackNavigator({
@@ -17,6 +20,23 @@ const SearchScreenNavigator = createStackNavigator({
   },
   {
     initialRouteName: 'Search',
+    headerMode: 'none'
+  }
+);
+
+const UserPageScreenNavigator = createStackNavigator({
+  MyBeers: SearchScreen,
+  MyComments: BeerScreen,
+  MyStats: SearchScreen,
+  MySettings: BeerScreen,
+  BeerSession: SearchScreen,
+  MyGames: BeerScreen,
+  UserPageScreen: BeerScreen,
+  Beer: BeerScreen,
+  UserScreen: UserScreen,
+  },
+  {
+    initialRouteName: 'UserScreen',
     headerMode: 'none'
   }
 );
@@ -41,7 +61,7 @@ const navigation = createMaterialBottomTabNavigator({
     }
   },
   User: { 
-    screen: UserScreen,
+    screen: UserPageScreenNavigator,
     navigationOptions:{
       tabBarLabel: 'Login',
       tabBarIcon:({tintColor}) =>(
